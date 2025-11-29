@@ -1,9 +1,170 @@
-import React, { useState, useEffect } from 'react';
-import { Leaf, Droplets, Wind, Sun, Recycle, TreePine, Lightbulb, Factory, Globe } from 'lucide-react';
+// PART 1: Import statements and first half of components
+// Copy this into your App.jsx file (PART 1 of 2)
 
-// Navbar Component
+import React, { useState, useEffect, useRef } from 'react';
+import { Leaf, Droplets, Wind, Sun, Recycle, TreePine, Lightbulb, Factory, Globe, Cloud, Sprout, ArrowUp } from 'lucide-react';
+
+
+// ========== NEW: Scroll Progress Bar Component ==========
+const ScrollProgress = () => {
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const totalHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const progress = (window.scrollY / totalHeight) * 100;
+      setScrollProgress(progress);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
+    <div className="fixed top-0 left-0 w-full h-1 bg-gray-200 z-50">
+      <div 
+        className="h-full bg-gradient-to-r from-green-500 via-teal-500 to-blue-500 transition-all duration-300"
+        style={{ width: `${scrollProgress}%` }}
+      />
+    </div>
+  );
+};
+
+// ========== NEW: Floating 3D Nature Icons that Follow Scroll ==========
+const FloatingNatureIcons = () => {
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const icons = [
+    { Icon: Leaf, left: '5%', baseTop: 20, speed: 0.3, rotate: true },
+    { Icon: Droplets, right: '8%', baseTop: 30, speed: 0.25, rotate: false },
+    { Icon: Wind, left: '10%', baseTop: 50, speed: 0.35, rotate: true },
+    { Icon: Cloud, right: '12%', baseTop: 60, speed: 0.2, rotate: false },
+    { Icon: Sprout, left: '7%', baseTop: 80, speed: 0.28, rotate: true },
+  ];
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-40 overflow-hidden">
+      {icons.map((item, index) => {
+        const { Icon, left, right, baseTop, speed, rotate } = item;
+        const offset = scrollY * speed;
+        const top = `${baseTop + (offset % 60)}vh`;
+        
+        return (
+          <div
+            key={index}
+            className="absolute transition-all duration-300 opacity-20 hover:opacity-40"
+            style={{
+              left,
+              right,
+              top,
+              transform: rotate ? `rotate(${(scrollY * 0.1) % 360}deg)` : 'none',
+            }}
+          >
+            <Icon className="w-12 h-12 text-green-600" />
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+// ========== NEW: Back to Top Button ==========
+const BackToTop = () => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const toggleVisibility = () => {
+      if (window.scrollY > 500) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
+    };
+
+    window.addEventListener('scroll', toggleVisibility);
+    return () => window.removeEventListener('scroll', toggleVisibility);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
+
+  return (
+    <>
+      {isVisible && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-8 z-50 bg-green-600 hover:bg-green-700 text-white p-4 rounded-full shadow-2xl transition-all transform hover:scale-110 animate-bounce"
+        >
+          <ArrowUp className="w-6 h-6" />
+        </button>
+      )}
+    </>
+  );
+};
+
+// ========== NEW: Animated Statistics Counter ==========
+const StatCounter = ({ end, duration = 2000, label, suffix = '' }) => {
+  const [count, setCount] = useState(0);
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const counterRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated) {
+          setHasAnimated(true);
+          let startTime;
+          const animate = (currentTime) => {
+            if (!startTime) startTime = currentTime;
+            const progress = Math.min((currentTime - startTime) / duration, 1);
+            setCount(Math.floor(progress * end));
+            if (progress < 1) {
+              requestAnimationFrame(animate);
+            }
+          };
+          requestAnimationFrame(animate);
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    if (counterRef.current) {
+      observer.observe(counterRef.current);
+    }
+
+    return () => {
+      if (counterRef.current) {
+        observer.unobserve(counterRef.current);
+      }
+    };
+  }, [end, duration, hasAnimated]);
+
+  return (
+    <div ref={counterRef} className="text-center p-6 bg-white/10 backdrop-blur-md rounded-2xl transform hover:scale-105 transition-all">
+      <div className="text-5xl font-bold text-white mb-2">
+        {count}{suffix}
+      </div>
+      <div className="text-lg text-green-200">{label}</div>
+    </div>
+  );
+};
+
+// ========== UPDATED: Navbar Component with Scroll Effect ==========
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,12 +182,71 @@ const Navbar = () => {
             <Leaf className="text-green-300 w-8 h-8" />
             <span className="text-white font-bold text-xl">EcoAwareness</span>
           </div>
+          
+          {/* Desktop Menu */}
           <div className="hidden md:flex space-x-8">
             <a href="#hero" className="text-white hover:text-green-300 transition-colors">Home</a>
+            <a href="#stats" className="text-white hover:text-green-300 transition-colors">Statistics</a>
             <a href="#what-is" className="text-white hover:text-green-300 transition-colors">What is Climate Change</a>
             <a href="#solutions" className="text-white hover:text-green-300 transition-colors">Solutions</a>
           </div>
+
+          {/* Mobile Menu Button */}
+          <button 
+            className="md:hidden text-white p-2"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {mobileMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
         </div>
+
+        {/* Mobile Menu Dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-green-900/95 backdrop-blur-md">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              <a 
+                href="#hero" 
+                className="block px-3 py-2 text-white hover:bg-green-800 rounded-md transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Home
+              </a>
+              <a 
+                href="#stats" 
+                className="block px-3 py-2 text-white hover:bg-green-800 rounded-md transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Statistics
+              </a>
+              <a 
+                href="#what-is" 
+                className="block px-3 py-2 text-white hover:bg-green-800 rounded-md transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                What is Climate Change
+              </a>
+              <a 
+                href="#solutions" 
+                className="block px-3 py-2 text-white hover:bg-green-800 rounded-md transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Solutions
+              </a>
+              <a href="#hazard-map" 
+              className="text-white hover:text-green-300 transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+              >
+                Hazard Map
+                </a>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );
@@ -74,8 +294,13 @@ const Hero = () => {
         <p className="text-xl md:text-2xl text-green-100 mb-8 max-w-3xl mx-auto">
           Let's learn about climate change and how we can help our environment
         </p>
-        <button className="bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-8 rounded-full transition-all transform hover:scale-105 shadow-2xl">
-          Start Learning
+        <button 
+            onClick={() => {
+            document.getElementById('stats').scrollIntoView({ behavior: 'smooth' });
+         }}
+        className="bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-8 rounded-full transition-all transform hover:scale-105 shadow-2xl"
+        > 
+            Start Learning
         </button>
       </div>
 
@@ -84,6 +309,29 @@ const Hero = () => {
         <svg viewBox="0 0 1440 320" className="w-full h-auto">
           <path fill="#ffffff" fillOpacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,144C960,149,1056,139,1152,128C1248,117,1344,107,1392,101.3L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
         </svg>
+      </div>
+    </section>
+  );
+};
+
+// ========== NEW: Climate Statistics Section ==========
+const StatsSection = () => {
+  return (
+    <section id="stats" className="py-24 bg-gradient-to-br from-green-700 via-teal-600 to-blue-700 relative overflow-hidden">
+      <FloatingParticles />
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Climate Change by the Numbers</h2>
+          <p className="text-xl text-green-100">Critical statistics that show the urgency of action</p>
+        </div>
+
+        <div className="grid md:grid-cols-4 gap-8">
+          <StatCounter end={1} duration={2000} label="°C Temperature Rise" suffix=".1" />
+          <StatCounter end={419} duration={2500} label="ppm CO₂ Levels" />
+          <StatCounter end={20} duration={2000} label="Typhoons/Year (PH)" />
+          <StatCounter end={48} duration={2200} label="% Emissions from Fossil Fuels" suffix="%" />
+        </div>
       </div>
     </section>
   );
@@ -216,8 +464,221 @@ const ThreeRCard = ({ title, children }) => {
     </div>
   );
 };
+// ========== NEW: Hazard Map Component ==========
+const HazardMap = () => {
+  const [selectedZone, setSelectedZone] = useState(null);
 
-// What Is Climate Change Section
+  // Lubao center coordinates
+  const lubaoCenter = [14.9386, 120.5964];
+
+  // Sample hazard zones (we'll update these with real data later)
+  const hazardZones = [
+    {
+      id: 1,
+      name: "High Risk Zone - River Areas",
+      type: "high",
+      barangays: ["San Nicolas 1st", "San Nicolas 2nd", "Santa Monica", "Prado Siongco"],
+      description: "Areas near Gumain River and low-lying zones. Prone to severe flooding during typhoons.",
+      coordinates: [
+        [14.955, 120.580],
+        [14.945, 120.590],
+        [14.935, 120.585],
+        [14.940, 120.575]
+      ]
+    },
+    {
+      id: 2,
+      name: "Medium Risk Zone - Central Area",
+      type: "medium",
+      barangays: ["Poblacion", "Bacolor", "San Agustin", "Santo Tomas"],
+      description: "Moderate elevation. May experience flooding during heavy rainfall.",
+      coordinates: [
+        [14.940, 120.600],
+        [14.930, 120.610],
+        [14.920, 120.605],
+        [14.925, 120.595]
+      ]
+    },
+    {
+      id: 3,
+      name: "Safe Zone - Higher Ground",
+      type: "safe",
+      barangays: ["San Jose Gumi", "Baliti", "San Matias"],
+      description: "Higher elevation areas. Suitable for evacuation during calamities.",
+      coordinates: [
+        [14.950, 120.610],
+        [14.945, 120.620],
+        [14.935, 120.615],
+        [14.938, 120.605]
+      ]
+    }
+  ];
+
+  // Evacuation centers
+  const evacuationCenters = [
+    {
+      name: "Lubao Municipal Hall",
+      coordinates: [14.9386, 120.5964],
+      capacity: "500 families",
+      facilities: "Medical aid, food distribution"
+    },
+    {
+      name: "Lubao National High School",
+      coordinates: [14.9420, 120.5980],
+      capacity: "300 families",
+      facilities: "Temporary shelter, clean water"
+    },
+    {
+      name: "Diosdado Macapagal Park (DOST Station)",
+      coordinates: [14.9370, 120.5950],
+      capacity: "Monitoring only",
+      facilities: "Real-time rainfall monitoring"
+    }
+  ];
+
+  const getZoneColor = (type) => {
+    switch(type) {
+      case 'high': return '#ef4444';
+      case 'medium': return '#f59e0b';
+      case 'safe': return '#10b981';
+      default: return '#6b7280';
+    }
+  };
+
+  return (
+    <section id="hazard-map" className="py-24 bg-gradient-to-b from-blue-50 to-white relative overflow-hidden">
+      <FloatingParticles />
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center mb-16 animate-fadeInUp">
+          <div className="flex justify-center mb-4">
+            <Globe className="w-16 h-16 text-red-600" />
+          </div>
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Lubao Hazard Map</h2>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Interactive map showing flood-prone areas and evacuation centers
+          </p>
+        </div>
+
+        {/* Map Container */}
+        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-8">
+          <div className="h-[500px] md:h-[600px] relative">
+            <iframe
+              src={`https://www.openstreetmap.org/export/embed.html?bbox=120.55,14.90,120.64,14.98&layer=mapnik&marker=${lubaoCenter[0]},${lubaoCenter[1]}`}
+              className="w-full h-full"
+              style={{ border: 0 }}
+              title="Lubao Pampanga Map"
+            />
+            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md p-4 rounded-lg shadow-lg">
+              <h4 className="font-bold text-gray-800 mb-2">Legend</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-red-500 rounded"></div>
+                  <span>High Risk</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-yellow-500 rounded"></div>
+                  <span>Medium Risk</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-green-500 rounded"></div>
+                  <span>Safe Zone</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
+                  <span>Evacuation Center</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Hazard Zones Info Cards */}
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
+          {hazardZones.map((zone) => (
+            <div
+              key={zone.id}
+              className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all cursor-pointer transform hover:scale-105"
+              style={{ borderLeft: `6px solid ${getZoneColor(zone.type)}` }}
+              onClick={() => setSelectedZone(zone)}
+            >
+              <div className="flex items-start gap-3 mb-3">
+                <div
+                  className="w-6 h-6 rounded-full mt-1"
+                  style={{ backgroundColor: getZoneColor(zone.type) }}
+                />
+                <div>
+                  <h3 className="text-xl font-bold text-gray-800">{zone.name}</h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {zone.type === 'high' ? '⚠️ High Risk' : zone.type === 'medium' ? '⚡ Medium Risk' : '✅ Safe'}
+                  </p>
+                </div>
+              </div>
+              <p className="text-gray-600 text-sm mb-3">{zone.description}</p>
+              <div className="text-xs text-gray-500">
+                <strong>Barangays:</strong> {zone.barangays.join(', ')}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Evacuation Centers */}
+        <div className="bg-gradient-to-r from-blue-600 to-teal-600 rounded-3xl p-8 text-white">
+          <h3 className="text-3xl font-bold mb-6 text-center">Evacuation Centers</h3>
+          <div className="grid md:grid-cols-3 gap-6">
+            {evacuationCenters.map((center, index) => (
+              <div key={index} className="bg-white/10 backdrop-blur-md rounded-xl p-6">
+                <h4 className="text-xl font-bold mb-2">📍 {center.name}</h4>
+                <p className="text-sm opacity-90 mb-2">
+                  <strong>Capacity:</strong> {center.capacity}
+                </p>
+                <p className="text-sm opacity-90">
+                  <strong>Facilities:</strong> {center.facilities}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Emergency Notice */}
+        <div className="mt-8 bg-red-50 border-l-4 border-red-500 rounded-lg p-6">
+          <div className="flex items-start gap-4">
+            <div className="text-red-600 text-3xl">⚠️</div>
+            <div>
+              <h4 className="text-xl font-bold text-red-800 mb-2">Emergency Preparedness</h4>
+              <p className="text-gray-700 mb-3">
+                According to Pampanga Governor Lilia Pineda, critical dike damage poses a threat to 5-6 barangays 
+                and approximately 30,000 families in Lubao. Stay alert during typhoon season and know your nearest evacuation center.
+              </p>
+              <div className="grid md:grid-cols-2 gap-4 text-sm">
+                <div className="bg-white rounded-lg p-3">
+                  <strong className="text-red-600">📞 Emergency Hotlines:</strong>
+                  <ul className="mt-2 space-y-1 text-gray-600">
+                    <li>• MDRRMO Lubao: (Update with real number)</li>
+                    <li>• PNP Lubao: 911</li>
+                    <li>• Red Cross: 143</li>
+                  </ul>
+                </div>
+                <div className="bg-white rounded-lg p-3">
+                  <strong className="text-blue-600">💧 DOST Monitoring:</strong>
+                  <p className="mt-2 text-gray-600">
+                    Real-time rainfall data available at Diosdado Macapagal Park monitoring station
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Note for Updates */}
+        <div className="mt-6 text-center text-gray-500 text-sm italic">
+          * This map uses sample data for demonstration. For official hazard information, 
+          please contact the Lubao Municipal Disaster Risk Reduction and Management Office (MDRRMO)
+        </div>
+      </div>
+    </section>
+  );
+};
 const WhatIsSection = () => {
   return (
     <section id="what-is" className="py-24 bg-gradient-to-b from-white to-green-50 relative overflow-hidden">
@@ -242,9 +703,10 @@ const WhatIsSection = () => {
                 Definition of Climate Change
               </h3>
               <ExpandableText maxLength={500}>
-                  Climate change refers to the long-term alteration of the Earth’s weather patterns. It occurs when the
+                  Climate change refers to the long-term alteration of the Earth's weather patterns. It occurs when the
                   planet becomes warmer or colder over a long period of time, not just for a few days or months.
-                  Nowadays, it is mostly caused by human activities such as burning fossil fuels and cutting down trees.              </ExpandableText>
+                  Nowadays, it is mostly caused by human activities such as burning fossil fuels and cutting down trees.
+              </ExpandableText>
             </div>
           </div>
         </div>
@@ -256,8 +718,7 @@ const WhatIsSection = () => {
             <InfoCard 
               icon={Factory}
               title="Greenhouse Gases"
-              description="Although the Philippines contributes only 0.48% of global greenhouse gas emissions, it remains highly vulnerable to climate change. National emissions continue to rise, with 41% coming from coal and fuel oil used for power generation and 35% from land, air, and water transportation.
-              Globally, fossil fuels accounted for 77% of primary energy use and over 60% of electricity production in 2023. Their combustion produces significant environmental impacts, with carbon dioxide from fossil fuel burning responsible for more than 70% of human-related greenhouse gas emissions in 2022. This makes fossil fuels the leading driver of global warming and ocean acidification."
+              description="Although the Philippines contributes only 0.48% of global greenhouse gas emissions, it remains highly vulnerable to climate change. National emissions continue to rise, with 41% coming from coal and fuel oil used for power generation and 35% from land, air, and water transportation. Globally, fossil fuels accounted for 77% of primary energy use and over 60% of electricity production in 2023. Their combustion produces significant environmental impacts, with carbon dioxide from fossil fuel burning responsible for more than 70% of human-related greenhouse gas emissions in 2022. This makes fossil fuels the leading driver of global warming and ocean acidification."
               delay={0}
             />
             <InfoCard 
@@ -269,7 +730,7 @@ const WhatIsSection = () => {
             <InfoCard 
               icon={Factory}
               title="Pollution"
-              description="Air pollution has become increasingly severe in the Philippines over the past year. According to the World Health Organization’s health and environment scorecard, the country’s annual average concentration of fine particulate matter is 24 μg/m³, far above the recommended limit of 5 μg/m³. Much of this pollution results from the burning of fossil fuels such as coal and oil. Additionally, 53% of the population lacks access to clean cooking fuels and technologies, a condition that is likely to worsen air quality over time."
+              description="Air pollution has become increasingly severe in the Philippines over the past year. According to the World Health Organization's health and environment scorecard, the country's annual average concentration of fine particulate matter is 24 μg/m³, far above the recommended limit of 5 μg/m³. Much of this pollution results from the burning of fossil fuels such as coal and oil. Additionally, 53% of the population lacks access to clean cooking fuels and technologies, a condition that is likely to worsen air quality over time."
               delay={200}
             />
           </div>
@@ -282,7 +743,7 @@ const WhatIsSection = () => {
             <InfoCard 
               icon={Sun}
               title="Global Warming"
-              description="Global warming is the long-term increase in the Earth’s surface temperature, driven mainly by rising concentrations of greenhouse gases in the atmosphere. Its impacts extend far beyond higher temperatures. Heat waves have become more frequent and intense across most land regions, increasing heat-related illnesses and mortality, while making outdoor work more dangerous—especially in tropical countries. Ecosystems are also being disrupted as species migrate toward cooler areas, and hotter, drier conditions have made wildfires more frequent and harder to control. The oceans, which absorb most of the excess heat, are experiencing marine heatwaves, coral bleaching, and reduced oxygen levels, all of which threaten marine biodiversity and fisheries."
+              description="Global warming is the long-term increase in the Earth's surface temperature, driven mainly by rising concentrations of greenhouse gases in the atmosphere. Its impacts extend far beyond higher temperatures. Heat waves have become more frequent and intense across most land regions, increasing heat-related illnesses and mortality, while making outdoor work more dangerous—especially in tropical countries. Ecosystems are also being disrupted as species migrate toward cooler areas, and hotter, drier conditions have made wildfires more frequent and harder to control. The oceans, which absorb most of the excess heat, are experiencing marine heatwaves, coral bleaching, and reduced oxygen levels, all of which threaten marine biodiversity and fisheries."
               delay={0}
             />
             <InfoCard 
@@ -305,7 +766,7 @@ const WhatIsSection = () => {
           <div className="bg-gradient-to-br from-blue-500 to-teal-600 rounded-3xl p-10 text-white shadow-2xl transform hover:scale-105 transition-all animate-fadeInUp">
             <h3 className="text-3xl font-bold mb-6">Climate Change in the Philippines</h3>
             <ExpandableTextWhite maxLength={200}>
-              The Philippines is consistently identified as one of the world’s most climate-vulnerable countries. Climate-related hazards—such as extreme weather events, coral bleaching, and coastal degradation—pose serious risks to the nation’s economy, ecosystems, and community livelihoods. From 2000 to 2019, the country ranked as the fourth most affected by climate impacts, underscoring the severity of its exposure.
+              The Philippines is consistently identified as one of the world's most climate-vulnerable countries. Climate-related hazards—such as extreme weather events, coral bleaching, and coastal degradation—pose serious risks to the nation's economy, ecosystems, and community livelihoods. From 2000 to 2019, the country ranked as the fourth most affected by climate impacts, underscoring the severity of its exposure.
               Its location within the typhoon belt and its extensive coastlines heighten this vulnerability, threatening natural resources and the well-being of millions. These increasing risks highlight the urgent need for strengthened adaptation and mitigation strategies to protect communities and support a more sustainable and climate-resilient future.
             </ExpandableTextWhite>
           </div>
@@ -361,7 +822,7 @@ const SolutionsSection = () => {
           <InfoCard 
             icon={Sun}
             title="Renewable Energy"
-            description="Renewable energy is derived from natural sources that are replenished faster than they are consumed, including sunlight, wind, water, geothermal heat, and ocean currents. Unlike fossil fuels, which release large amounts of carbon dioxide and take millions of years to form, renewable energy produces significantly lower greenhouse gas emissions and supports a transition toward a more sustainable energy system. Solar energy harnesses sunlight through photovoltaic panels or concentrated solar systems, providing electricity, heat, and fuel even in cloudy conditions, while wind energy captures the kinetic energy of air through onshore and offshore turbines, with global potential sufficient to meet a significant portion of electricity demand. Geothermal energy utilizes heat from the Earth’s interior from naturally hot or enhanced reservoirs to generate stable, low-emission electricity. Hydropower generates energy from flowing water in rivers or reservoirs, offering additional benefits such as irrigation, flood control, and drinking water, with small-scale hydro being particularly suitable for remote communities. Emerging ocean energy technologies harness the power of waves, tides, and currents, offering vast long-term potential to supplement the global energy supply. Collectively, these renewable sources are increasingly cost-effective, environmentally friendly, and vital for mitigating climate change while creating jobs and reducing reliance on fossil fuels."
+            description="Renewable energy is derived from natural sources that are replenished faster than they are consumed, including sunlight, wind, water, geothermal heat, and ocean currents. Unlike fossil fuels, which release large amounts of carbon dioxide and take millions of years to form, renewable energy produces significantly lower greenhouse gas emissions and supports a transition toward a more sustainable energy system. Solar energy harnesses sunlight through photovoltaic panels or concentrated solar systems, providing electricity, heat, and fuel even in cloudy conditions, while wind energy captures the kinetic energy of air through onshore and offshore turbines, with global potential sufficient to meet a significant portion of electricity demand. Geothermal energy utilizes heat from the Earth's interior from naturally hot or enhanced reservoirs to generate stable, low-emission electricity. Hydropower generates energy from flowing water in rivers or reservoirs, offering additional benefits such as irrigation, flood control, and drinking water, with small-scale hydro being particularly suitable for remote communities. Emerging ocean energy technologies harness the power of waves, tides, and currents, offering vast long-term potential to supplement the global energy supply. Collectively, these renewable sources are increasingly cost-effective, environmentally friendly, and vital for mitigating climate change while creating jobs and reducing reliance on fossil fuels."
             delay={0}
           />
           <InfoCard 
@@ -379,7 +840,7 @@ const SolutionsSection = () => {
           <InfoCard 
             icon={Wind}
             title="Sustainable Transportation"
-            description="Sustainable transportation aims to meet mobility needs while reducing environmental impact, improving public health, and promoting social equity. By encouraging walking, cycling, public transit, and electric or hybrid vehicles, cities can significantly lower greenhouse gas emissions and urban pollution. Combined with smart urban planning, policies such as carpooling, stricter vehicle emission standards, and “15-minute cities” where essential services are accessible by foot or bike, sustainable transportation helps create cleaner, healthier, and more livable communities while addressing climate change."
+            description="Sustainable transportation aims to meet mobility needs while reducing environmental impact, improving public health, and promoting social equity. By encouraging walking, cycling, public transit, and electric or hybrid vehicles, cities can significantly lower greenhouse gas emissions and urban pollution. Combined with smart urban planning, policies such as carpooling, stricter vehicle emission standards, and &quot;15-minute cities&quot; where essential services are accessible by foot or bike, sustainable transportation helps create cleaner, healthier, and more livable communities while addressing climate change."
             delay={300}
           />
           <InfoCard 
@@ -391,8 +852,7 @@ const SolutionsSection = () => {
           <InfoCard 
             icon={Factory}
             title="Anti-Pollution Programs"
-            description="Republic Act No. 8749, or the Philippine Clean Air Act of 1999, is a landmark law designed to protect and improve air quality in the Philippines. It provides a comprehensive framework for preventing, controlling, and mitigating air pollution from mobile and stationary sources to safeguard public health and the environment. The Act establishes air quality standards for key pollutants such as particulate matter, sulfur dioxide, carbon monoxide, nitrogen oxides, and ozone, and mandates continuous monitoring and enforcement.
-              The law integrates air quality management into national and local planning, ensuring that pollution control is prioritized in both urban and rural areas. It assigns responsibilities to government agencies, particularly the Department of Environment and Natural Resources (DENR), to enforce standards, regulate industrial emissions, and promote cleaner technologies. The Act also encourages public participation and imposes penalties on violators, including fines and permit suspensions or revocations. Through these measures, the Clean Air Act aims to reduce pollution, protect public health, and promote sustainable development in the Philippines."
+            description="Republic Act No. 8749, or the Philippine Clean Air Act of 1999, is a landmark law designed to protect and improve air quality in the Philippines. It provides a comprehensive framework for preventing, controlling, and mitigating air pollution from mobile and stationary sources to safeguard public health and the environment. The Act establishes air quality standards for key pollutants such as particulate matter, sulfur dioxide, carbon monoxide, nitrogen oxides, and ozone, and mandates continuous monitoring and enforcement. The law integrates air quality management into national and local planning, ensuring that pollution control is prioritized in both urban and rural areas. It assigns responsibilities to government agencies, particularly the Department of Environment and Natural Resources (DENR), to enforce standards, regulate industrial emissions, and promote cleaner technologies. The Act also encourages public participation and imposes penalties on violators, including fines and permit suspensions or revocations. Through these measures, the Clean Air Act aims to reduce pollution, protect public health, and promote sustainable development in the Philippines."
             delay={500}
           />
         </div>
@@ -412,24 +872,17 @@ const SolutionsSection = () => {
             <div className="space-y-6">
               <div className="bg-green-50 rounded-xl p-6 hover:bg-green-100 transition-colors">
                 <h4 className="text-xl font-bold text-gray-800 mb-3">Campus Initiatives</h4>
-                <p className="text-gray-700">Schools in the Philippines are increasingly adopting strategies to reduce their environmental impact and promote sustainability. Key initiatives include plastic recycling programs, composting food waste, and reducing single-use disposable items like plastic cutlery, cups, and bottles. College campuses can further support sustainability by offering donation programs and e-waste recycling drives during moving season, helping keep unwanted items and electronics out of landfills.
-                To support these efforts, campuses can implement clear recycling plans:
-                •Coordinate with local recyclers to identify acceptable materials.
-                •Place labeled bins in high-traffic areas.
-                •Organize volunteer teams to collect and track recyclables weekly.
-               Investments in tree planting on campus provide additional benefits, including improved air quality, energy savings from reduced heating and cooling, and increased property value. Sustainable infrastructure and initiatives not only enhance the campus environment but also allow schools to redirect cost savings to educational programs.</p>
+                <p className="text-gray-700">Schools in the Philippines are increasingly adopting strategies to reduce their environmental impact and promote sustainability. Key initiatives include plastic recycling programs, composting food waste, and reducing single-use disposable items like plastic cutlery, cups, and bottles. College campuses can further support sustainability by offering donation programs and e-waste recycling drives during moving season, helping keep unwanted items and electronics out of landfills. To support these efforts, campuses can implement clear recycling plans: Coordinate with local recyclers to identify acceptable materials, Place labeled bins in high-traffic areas, Organize volunteer teams to collect and track recyclables weekly. Investments in tree planting on campus provide additional benefits, including improved air quality, energy savings from reduced heating and cooling, and increased property value. Sustainable infrastructure and initiatives not only enhance the campus environment but also allow schools to redirect cost savings to educational programs.</p>
               </div>
               
               <div className="bg-blue-50 rounded-xl p-6 hover:bg-blue-100 transition-colors">
                 <h4 className="text-xl font-bold text-gray-800 mb-3">Student Participation</h4>
-                <p className="text-gray-700">Students play a vital role in making campus sustainability initiatives successful. Simple habits like using reusable water bottles, coffee cups, and utensils, packing lunch in reusable containers, and avoiding plastic straws or bags can collectively reduce campus waste. Students can also engage in practical activities such as community clean-ups, recycling drives, and campaigns to reduce single-use plastics.
-                Participation helps students develop critical thinking, teamwork, and leadership skills while fostering a sense of responsibility toward the environment. By taking part in composting programs, recycling, and energy conservation projects, students not only contribute to a cleaner campus but also gain hands-on experience in sustainable practices that they can apply in their personal lives.</p>
+                <p className="text-gray-700">Students play a vital role in making campus sustainability initiatives successful. Simple habits like using reusable water bottles, coffee cups, and utensils, packing lunch in reusable containers, and avoiding plastic straws or bags can collectively reduce campus waste. Students can also engage in practical activities such as community clean-ups, recycling drives, and campaigns to reduce single-use plastics. Participation helps students develop critical thinking, teamwork, and leadership skills while fostering a sense of responsibility toward the environment. By taking part in composting programs, recycling, and energy conservation projects, students not only contribute to a cleaner campus but also gain hands-on experience in sustainable practices that they can apply in their personal lives.</p>
               </div>
               
               <div className="bg-teal-50 rounded-xl p-6 hover:bg-teal-100 transition-colors">
                 <h4 className="text-xl font-bold text-gray-800 mb-3">Community Engagement</h4>
-                <p className="text-gray-700">Sustainability on campus extends beyond the school itself, influencing the broader community. Universities can lead community-driven projects, collaborate with local partners, and develop eco-friendly innovations in collaboration with organizations like IPUs and Fab Labs. These initiatives can enhance the university’s visibility in rankings for innovation and sustainability, while inspiring local residents and businesses to adopt similar practices.
-                Through education and outreach, students and staff can promote environmental awareness in surrounding communities, participate in tree planting programs, and share best practices in waste management and energy conservation. These efforts help create cleaner, healthier, and more resilient communities, demonstrating that protecting the environment is not only a campus responsibility but a shared social commitment.</p>
+                <p className="text-gray-700">Sustainability on campus extends beyond the school itself, influencing the broader community. Universities can lead community-driven projects, collaborate with local partners, and develop eco-friendly innovations in collaboration with organizations like IPUs and Fab Labs. These initiatives can enhance the university's visibility in rankings for innovation and sustainability, while inspiring local residents and businesses to adopt similar practices. Through education and outreach, students and staff can promote environmental awareness in surrounding communities, participate in tree planting programs, and share best practices in waste management and energy conservation. These efforts help create cleaner, healthier, and more resilient communities, demonstrating that protecting the environment is not only a campus responsibility but a shared social commitment.</p>
               </div>
             </div>
           </div>
@@ -459,6 +912,7 @@ const Footer = () => {
             <h4 className="font-bold text-lg mb-4">Quick Links</h4>
             <ul className="space-y-2">
               <li><a href="#hero" className="text-green-200 hover:text-white transition-colors">Home</a></li>
+              <li><a href="#stats" className="text-green-200 hover:text-white transition-colors">Statistics</a></li>
               <li><a href="#what-is" className="text-green-200 hover:text-white transition-colors">Climate Change Info</a></li>
               <li><a href="#solutions" className="text-green-200 hover:text-white transition-colors">Solutions</a></li>
             </ul>
@@ -528,8 +982,16 @@ function App() {
         }
       `}</style>
       
+      {/* NEW FEATURES */}
+      <ScrollProgress />
+      <FloatingNatureIcons />
+      <BackToTop />
+      
+      {/* EXISTING SECTIONS */}
       <Navbar />
       <Hero />
+      <StatsSection />
+      <HazardMap /> 
       <WhatIsSection />
       <SolutionsSection />
       <Footer />
