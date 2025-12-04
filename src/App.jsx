@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Leaf, Droplets, Wind, Sun, Recycle, TreePine, Lightbulb, Factory, Globe, Cloud, Sprout, ArrowUp } from 'lucide-react';
 
+import Scene from './components/Scene';
 
 // ========== NEW: Scroll Progress Bar Component ==========
 const ScrollProgress = () => {
@@ -1199,61 +1200,49 @@ const Footer = () => {
 
 // Main App Component
 function App() {
+  const [showModel, setShowModel] = useState(false);
+
   return (
-    <div className="font-sans">
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(40px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) translateX(0px); }
-          50% { transform: translateY(-20px) translateX(10px); }
-        }
-        
-        @keyframes spin-slow {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        
-        .animate-fadeIn {
-          animation: fadeIn 1s ease-out;
-        }
-        
-        .animate-fadeInUp {
-          animation: fadeInUp 0.8s ease-out;
-        }
-        
-        .animate-float {
-          animation: float linear infinite;
-        }
-        
-        .animate-spin-slow {
-          animation: spin-slow 20s linear infinite;
-        }
-        
-        html {
-          scroll-behavior: smooth;
-        }
-      `}</style>
-      
+  <div className="font-sans">
+  <style>{/* your existing animations */}</style>
+
+  {/* Button to show/hide the 3D model */}
+  <button
+    onClick={() => setShowModel(!showModel)}
+    style={{
+      position: "fixed",
+      bottom: 20,  // moved from top: 20
+      right: 20,
+      zIndex: 100,
+      padding: "10px 15px",
+      background: "#333",
+      color: "#fff",
+      border: "none",
+      borderRadius: "5px",
+      cursor: "pointer",
+    }}
+  >
+    {showModel ? "Hide 3D Model" : "Show 3D Model"}
+  </button>
+
+  {/* 3D Model Section */}
+  {showModel && (
+    <section style={{ width: "100%", height: "500px", marginTop: "20px" }}>
+      <Scene />
+    </section>
+  )}
+
       {/* NEW FEATURES */}
       <ScrollProgress />
       <FloatingNatureIcons />
       <BackToTop />
-      
+
       {/* EXISTING SECTIONS */}
       <Navbar />
       <Hero />
       <StatsSection />
-      <HazardMap /> 
-      <ClimateAssistant /> 
+      <HazardMap />
+      <ClimateAssistant />
       <WhatIsSection />
       <SolutionsSection />
       <Footer />
