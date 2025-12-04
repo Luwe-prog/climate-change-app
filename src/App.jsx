@@ -1182,7 +1182,7 @@ const Footer = () => {
           <div>
             <h4 className="font-bold text-lg mb-4">Contact</h4>
             <p className="text-green-200">
-              Pampanga State Agricultural University<br />
+              Pampanga State University<br />
               Lubao Campus<br />
               Lubao, Pampanga
             </p>
