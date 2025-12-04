@@ -1,6 +1,3 @@
-// PART 1: Import statements and first half of components
-// Copy this into your App.jsx file (PART 1 of 2)
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Leaf, Droplets, Wind, Sun, Recycle, TreePine, Lightbulb, Factory, Globe, Cloud, Sprout, ArrowUp } from 'lucide-react';
 
@@ -189,7 +186,9 @@ const Navbar = () => {
             <a href="#stats" className="text-white hover:text-green-300 transition-colors">Statistics</a>
             <a href="#what-is" className="text-white hover:text-green-300 transition-colors">What is Climate Change</a>
             <a href="#solutions" className="text-white hover:text-green-300 transition-colors">Solutions</a>
+            <a href="#ai-assistant" className="text-white hover:text-green-300 transition-colors">AI Assistant</a>
           </div>
+          
 
           {/* Mobile Menu Button */}
           <button 
@@ -216,6 +215,13 @@ const Navbar = () => {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Home
+              </a>
+              <a 
+                href="#ai-assistant" 
+                className="block px-3 py-2 text-white hover:bg-green-800 rounded-md transition-colors"
+                 onClick={() => setMobileMenuOpen(false)}
+              > 
+                AI Assistant
               </a>
               <a 
                 href="#stats" 
@@ -679,6 +685,260 @@ const HazardMap = () => {
     </section>
   );
 };
+
+// ========== AI CLIMATE ASSISTANT COMPONENT ==========
+const ClimateAssistant = () => {
+  const [messages, setMessages] = useState([
+    {
+      role: 'assistant',
+      content: 'Hi! I\'m your Climate Change Assistant. Ask me anything about climate change, environmental solutions, or the situation in Lubao, Pampanga! 🌍'
+    }
+  ]);
+  const [inputMessage, setInputMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+const sendMessage = async () => {
+  if (!inputMessage.trim() || isLoading) return;
+
+  const userMessage = inputMessage.trim();
+  setInputMessage('');
+  
+  setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+  setIsLoading(true);
+
+  try {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile', // ✅ Updated to current model
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an educational climate change assistant for students in Lubao, Pampanga, Philippines. Help students understand climate change clearly, simply, and accurately. Be friendly, encouraging, and supportive. Explain concepts in simple language suitable for high school/college students. Use examples relevant to the Philippines and Lubao when possible. Keep responses concise (2-4 paragraphs max) but informative.'
+          },
+          {
+            role: 'user',
+            content: userMessage
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 1024,
+        top_p: 1,
+        stream: false
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('API Error Details:', errorData);
+      throw new Error(`API Error: ${response.status} - ${errorData.error?.message || 'Failed to get response'}`);
+    }
+
+    const data = await response.json();
+    const aiResponse = data.choices[0].message.content;
+
+    setMessages(prev => [...prev, { role: 'assistant', content: aiResponse }]);
+  } catch (error) {
+    console.error('Error:', error);
+    setMessages(prev => [...prev, { 
+      role: 'assistant', 
+      content: `❌ Sorry, I encountered an error: ${error.message}
+
+Please check:
+1. Your Groq API key is correct in the .env file
+2. The API key is active at https://console.groq.com/keys
+3. You haven't exceeded the rate limit` 
+    }]);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
+  const suggestedQuestions = [
+    "What is climate change?",
+    "How does climate change affect the Philippines?",
+    "What can I do to help fight climate change?",
+    "Why is Lubao prone to flooding?",
+    "What are renewable energy sources?"
+  ];
+
+  return (
+    <section id="ai-assistant" className="py-24 bg-gradient-to-b from-white to-purple-50 relative overflow-hidden">
+      <FloatingParticles />
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center mb-16 animate-fadeInUp">
+          <div className="flex justify-center mb-4">
+            <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-4 rounded-full">
+              <Lightbulb className="w-16 h-16 text-white" />
+            </div>
+          </div>
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">AI Climate Assistant</h2>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Got questions? Ask our AI assistant anything about climate change!
+          </p>
+        </div>
+
+        {/* Chat Interface */}
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border-4 border-purple-200">
+            
+            {/* Chat Header */}
+            <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 text-white">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                    <Lightbulb className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold">Climate Change Assistant</h3>
+                    <p className="text-sm opacity-90">Powered by AI • Always here to help 🌱</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                  <span className="text-sm">Online</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Chat Messages */}
+            <div className="h-[500px] overflow-y-auto p-6 bg-gray-50 space-y-4">
+              {messages.map((message, index) => (
+                <div
+                  key={index}
+                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-fadeInUp`}
+                >
+                  <div
+                    className={`max-w-[80%] rounded-2xl p-4 ${
+                      message.role === 'user'
+                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
+                        : 'bg-white text-gray-800 shadow-md border border-gray-200'
+                    }`}
+                  >
+                    {message.role === 'assistant' && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <Lightbulb className="w-4 h-4 text-purple-600" />
+                        <span className="text-xs font-semibold text-purple-600">AI Assistant</span>
+                      </div>
+                    )}
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                    <span className="text-xs opacity-70 mt-2 block">
+                      {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                </div>
+              ))}
+              
+              {isLoading && (
+                <div className="flex justify-start animate-fadeInUp">
+                  <div className="bg-white rounded-2xl p-4 shadow-md border border-gray-200">
+                    <div className="flex items-center gap-2">
+                      <div className="flex gap-1">
+                        <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce"></div>
+                        <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                        <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                      </div>
+                      <span className="text-sm text-gray-600">AI is thinking...</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Suggested Questions */}
+            {messages.length === 1 && (
+              <div className="px-6 py-4 bg-purple-50 border-t border-purple-100">
+                <p className="text-sm font-semibold text-gray-700 mb-3">💡 Try asking:</p>
+                <div className="flex flex-wrap gap-2">
+                  {suggestedQuestions.map((question, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        setInputMessage(question);
+                      }}
+                      className="text-xs bg-white hover:bg-purple-100 text-purple-700 px-3 py-2 rounded-full border border-purple-200 transition-all transform hover:scale-105"
+                    >
+                      {question}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Input Area */}
+            <div className="p-6 bg-white border-t border-gray-200">
+              <div className="flex gap-3">
+                <input
+                  type="text"
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Ask me anything about climate change..."
+                  className="flex-1 px-4 py-3 border-2 border-purple-200 rounded-full focus:outline-none focus:border-purple-500 transition-colors"
+                  disabled={isLoading}
+                />
+                <button
+                  onClick={sendMessage}
+                  disabled={isLoading || !inputMessage.trim()}
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-full font-semibold transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                >
+                  {isLoading ? '...' : 'Send'}
+                </button>
+              </div>
+              <p className="text-xs text-gray-500 mt-3 text-center">
+                💡 Tip: Press Enter to send your message
+              </p>
+            </div>
+          </div>
+
+          {/* Info Card */}
+          <div className="mt-8 bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-6 border-2 border-purple-200">
+            <div className="flex items-start gap-4">
+              <div className="text-3xl">🤖</div>
+              <div>
+                <h4 className="font-bold text-purple-900 mb-2">About This AI Assistant</h4>
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  This assistant uses advanced AI to help you understand climate change topics. 
+                  It's trained to provide accurate, educational responses suitable for students. 
+                  Ask about climate science, environmental solutions, local impacts in Lubao, or anything climate-related!
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <span className="text-xs bg-white px-3 py-1 rounded-full text-purple-700 font-medium">✓ Accurate Information</span>
+                  <span className="text-xs bg-white px-3 py-1 rounded-full text-purple-700 font-medium">✓ Student-Friendly</span>
+                  <span className="text-xs bg-white px-3 py-1 rounded-full text-purple-700 font-medium">✓ Always Available</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const WhatIsSection = () => {
   return (
     <section id="what-is" className="py-24 bg-gradient-to-b from-white to-green-50 relative overflow-hidden">
@@ -915,6 +1175,7 @@ const Footer = () => {
               <li><a href="#stats" className="text-green-200 hover:text-white transition-colors">Statistics</a></li>
               <li><a href="#what-is" className="text-green-200 hover:text-white transition-colors">Climate Change Info</a></li>
               <li><a href="#solutions" className="text-green-200 hover:text-white transition-colors">Solutions</a></li>
+              
             </ul>
           </div>
           
@@ -992,6 +1253,7 @@ function App() {
       <Hero />
       <StatsSection />
       <HazardMap /> 
+      <ClimateAssistant /> 
       <WhatIsSection />
       <SolutionsSection />
       <Footer />
