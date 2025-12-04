@@ -172,6 +172,7 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+    const [showModel, setShowModel] = useState(false);
   return (
     <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-green-900/95 backdrop-blur-md shadow-lg' : 'bg-transparent'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -188,6 +189,7 @@ const Navbar = () => {
             <a href="#what-is" className="text-white hover:text-green-300 transition-colors">What is Climate Change</a>
             <a href="#solutions" className="text-white hover:text-green-300 transition-colors">Solutions</a>
             <a href="#ai-assistant" className="text-white hover:text-green-300 transition-colors">AI Assistant</a>
+            <a href="#3d-model" className="text-white hover:text-green-300 transition-colors">3d model</a>
           </div>
           
 
@@ -251,6 +253,13 @@ const Navbar = () => {
               >
                 Hazard Map
                 </a>
+                 <a 
+                href="#3d-model" 
+                className="block px-3 py-2 text-white hover:bg-green-800 rounded-md transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                3d model
+              </a>
             </div>
           </div>
         )}
@@ -320,7 +329,44 @@ const Hero = () => {
     </section>
   );
 };
+const ThreeDModelSection = () => {
+  const [showModel, setShowModel] = useState(false);
+  return (
+    <section
 
+      id="3d-model"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700"
+    >
+       {/* 3D Model Section */}
+  {showModel && (
+    <section style={{ width: "100%", height: "500px", marginTop: "20px" }}>
+      <Scene />
+    </section>
+  )}
+      {/* Optional animated background shapes */}
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute top-20 left-10 w-64 h-64 bg-purple-500 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+      </div>
+
+      {/* 3D Model */}
+      <div className="relative z-10 w-full h-full flex items-center justify-center animate-fadeIn">
+        <Scene />
+      </div>
+
+      {/* Wave effect at the bottom */}
+      <div className="absolute bottom-0 left-0 right-0">
+        <svg viewBox="0 0 1440 320" className="w-full h-auto">
+          <path
+            fill="#ffffff"
+            fillOpacity="0.1"
+            d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,144C960,149,1056,139,1152,128C1248,117,1344,107,1392,101.3L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+          ></path>
+        </svg>
+      </div>
+    </section>
+  );
+};
 // ========== NEW: Climate Statistics Section ==========
 const StatsSection = () => {
   return (
@@ -1203,27 +1249,11 @@ function App() {
   const [showModel, setShowModel] = useState(false);
 
   return (
-  <div className="font-sans">
+    <div className="font-sans">
   <style>{/* your existing animations */}</style>
 
   {/* Button to show/hide the 3D model */}
-  <button
-    onClick={() => setShowModel(!showModel)}
-    style={{
-      position: "fixed",
-      bottom: 20,  // moved from top: 20
-      right: 20,
-      zIndex: 100,
-      padding: "10px 15px",
-      background: "#333",
-      color: "#fff",
-      border: "none",
-      borderRadius: "5px",
-      cursor: "pointer",
-    }}
-  >
-    {showModel ? "Hide 3D Model" : "Show 3D Model"}
-  </button>
+  
 
   {/* 3D Model Section */}
   {showModel && (
@@ -1241,13 +1271,14 @@ function App() {
       <Navbar />
       <Hero />
       <StatsSection />
+      < ThreeDModelSection/>
       <HazardMap />
       <ClimateAssistant />
       <WhatIsSection />
       <SolutionsSection />
       <Footer />
     </div>
-  );
+  )
 }
 
 export default App;
