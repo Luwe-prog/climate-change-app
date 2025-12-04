@@ -826,7 +826,7 @@ const Download3DMap = () => {
               {/* Download Button */}
               <div className="text-center">
                 <a
-                  href="/assets/campus-map.glb"
+                  href="/assets/psu-map.glb"
                   download="PSU-Lubao-Campus-3D-Map.glb"
                   onClick={handleDownload}
                   className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white font-bold py-4 px-8 rounded-full transition-all transform hover:scale-105 shadow-2xl"
