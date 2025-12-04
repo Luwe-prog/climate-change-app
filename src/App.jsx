@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Leaf, Droplets, Wind, Sun, Recycle, TreePine, Lightbulb, Factory, Globe, Cloud, Sprout, ArrowUp } from 'lucide-react';
+import { Leaf, Droplets, Wind, Sun, Recycle, TreePine, Lightbulb, Factory, Globe, Cloud, Sprout, ArrowUp, Download } from 'lucide-react';
 
 import Scene from './components/Scene';
 
@@ -190,6 +190,7 @@ const Navbar = () => {
             <a href="#solutions" className="text-white hover:text-green-300 transition-colors">Solutions</a>
             <a href="#ai-assistant" className="text-white hover:text-green-300 transition-colors">AI Assistant</a>
             <a href="#3d-model" className="text-white hover:text-green-300 transition-colors">3d model</a>
+             <a href="#download-map" className="text-white hover:text-green-300 transition-colors">Download 3d model</a>
           </div>
           
 
@@ -259,6 +260,13 @@ const Navbar = () => {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 3d model
+              </a>
+               <a 
+                href="#download-map" 
+                className="block px-3 py-2 text-white hover:bg-green-800 rounded-md transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Download 3d Map
               </a>
             </div>
           </div>
@@ -480,9 +488,15 @@ const ThreeRCard = ({ title, children }) => {
     </div>
   );
 };
+
+
+
+
 // ========== NEW: Hazard Map Component ==========
 const HazardMap = () => {
   const [selectedZone, setSelectedZone] = useState(null);
+
+
 
   // Lubao center coordinates
   const lubaoCenter = [14.9386, 120.5964];
@@ -530,6 +544,8 @@ const HazardMap = () => {
     }
   ];
 
+
+  
   // Evacuation centers
   const evacuationCenters = [
     {
@@ -690,6 +706,189 @@ const HazardMap = () => {
         <div className="mt-6 text-center text-gray-500 text-sm italic">
           * This map uses sample data for demonstration. For official hazard information, 
           please contact the Lubao Municipal Disaster Risk Reduction and Management Office (MDRRMO)
+        </div>
+      </div>
+    </section>
+  );
+};
+// ========== DOWNLOADABLE 3D CAMPUS MAP SECTION ==========
+const Download3DMap = () => {
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownload = () => {
+    setIsDownloading(true);
+    // Reset after 2 seconds
+    setTimeout(() => setIsDownloading(false), 2000);
+  };
+
+  return (
+    <section id="download-map" className="py-24 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
+      <FloatingParticles />
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="max-w-4xl mx-auto">
+          
+          {/* Header */}
+          <div className="text-center mb-12 animate-fadeInUp">
+            <div className="flex justify-center mb-4">
+              <div className="bg-gradient-to-r from-blue-500 to-teal-500 p-4 rounded-full">
+                <Globe className="w-16 h-16 text-white" />
+              </div>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+              Download 3D Campus Map
+            </h2>
+            <p className="text-xl text-gray-600">
+              Get the complete 3D model of PSU Lubao Campus
+            </p>
+          </div>
+
+          {/* Main Card */}
+          <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border-4 border-blue-200 animate-fadeInUp" style={{animationDelay: '100ms'}}>
+            
+            {/* Card Header with Gradient */}
+            <div className="bg-gradient-to-r from-blue-600 to-teal-600 p-8 text-white">
+              <div className="flex items-start gap-6">
+                <div className="bg-white/20 p-4 rounded-2xl backdrop-blur-sm flex-shrink-0">
+                  <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-2xl font-bold mb-2">PSU Lubao Campus 3D Model</h3>
+                  <p className="text-blue-100 leading-relaxed">
+                    High-quality 3D model in GLB format. Perfect for visualization, presentations, and educational purposes.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Card Body */}
+            <div className="p-8">
+              
+              {/* File Information */}
+              <div className="grid md:grid-cols-3 gap-4 mb-8">
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <div className="text-blue-600 font-semibold text-sm mb-1">File Format</div>
+                  <div className="text-gray-800 font-bold text-lg">GLB</div>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <div className="text-blue-600 font-semibold text-sm mb-1">Compatible With</div>
+                  <div className="text-gray-800 font-bold text-lg">Blender, Unity, etc.</div>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <div className="text-blue-600 font-semibold text-sm mb-1">File Name</div>
+                  <div className="text-gray-800 font-bold text-lg">campus-map.glb</div>
+                </div>
+              </div>
+
+              {/* Features */}
+              <div className="mb-8">
+                <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                  <span className="text-2xl">✨</span> What's Included
+                </h4>
+                <div className="grid md:grid-cols-2 gap-3">
+                  <div className="flex items-start gap-3">
+                    <div className="bg-green-100 text-green-600 rounded-full p-1 mt-0.5">
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <span className="text-gray-700 text-sm">Complete campus buildings</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="bg-green-100 text-green-600 rounded-full p-1 mt-0.5">
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <span className="text-gray-700 text-sm">Landscape and terrain</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="bg-green-100 text-green-600 rounded-full p-1 mt-0.5">
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <span className="text-gray-700 text-sm">Optimized for viewing</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="bg-green-100 text-green-600 rounded-full p-1 mt-0.5">
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <span className="text-gray-700 text-sm">Ready to use</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Download Button */}
+              <div className="text-center">
+                <a
+                  href="/assets/campus-map.glb"
+                  download="PSU-Lubao-Campus-3D-Map.glb"
+                  onClick={handleDownload}
+                  className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white font-bold py-4 px-8 rounded-full transition-all transform hover:scale-105 shadow-2xl"
+                >
+                  {isDownloading ? (
+                    <>
+                      <svg className="animate-spin h-6 w-6" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span>Downloading...</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                      </svg>
+                      <span>Download 3D Map</span>
+                    </>
+                  )}
+                </a>
+                <p className="text-sm text-gray-500 mt-4">
+                  Click to download • File will be saved as "PSU-Lubao-Campus-3D-Map.glb"
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+          {/* Usage Instructions */}
+          <div className="mt-8 bg-blue-50 rounded-2xl p-6 border-l-4 border-blue-500 animate-fadeInUp" style={{animationDelay: '200ms'}}>
+            <h4 className="font-bold text-blue-900 mb-3 flex items-center gap-2">
+              <span>📖</span> How to Use This File
+            </h4>
+            <div className="space-y-3 text-sm text-gray-700">
+              <div className="flex items-start gap-3">
+                <span className="bg-blue-200 text-blue-800 font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
+                <p><strong>Download</strong> the GLB file by clicking the button above</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="bg-blue-200 text-blue-800 font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
+                <p><strong>Open</strong> with 3D software like Blender, Unity, Unreal Engine, or online viewers</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="bg-blue-200 text-blue-800 font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
+                <p><strong>Use</strong> for presentations, projects, VR/AR applications, or educational purposes</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Compatible Software */}
+          <div className="mt-8 text-center">
+            <p className="text-sm text-gray-600 mb-4">Compatible with popular 3D software:</p>
+            <div className="flex flex-wrap justify-center gap-3">
+              <span className="bg-white px-4 py-2 rounded-full text-sm font-medium text-gray-700 shadow-md border border-gray-200">Blender</span>
+              <span className="bg-white px-4 py-2 rounded-full text-sm font-medium text-gray-700 shadow-md border border-gray-200">Unity</span>
+              <span className="bg-white px-4 py-2 rounded-full text-sm font-medium text-gray-700 shadow-md border border-gray-200">Unreal Engine</span>
+              <span className="bg-white px-4 py-2 rounded-full text-sm font-medium text-gray-700 shadow-md border border-gray-200">SketchUp</span>
+              <span className="bg-white px-4 py-2 rounded-full text-sm font-medium text-gray-700 shadow-md border border-gray-200">3D Viewers</span>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
@@ -1222,7 +1421,7 @@ const Footer = () => {
               <li><a href="#stats" className="text-green-200 hover:text-white transition-colors">Statistics</a></li>
               <li><a href="#what-is" className="text-green-200 hover:text-white transition-colors">Climate Change Info</a></li>
               <li><a href="#solutions" className="text-green-200 hover:text-white transition-colors">Solutions</a></li>
-              
+               <li><a href="#download-map" className="text-green-200 hover:text-white transition-colors">Download map</a></li>
             </ul>
           </div>
           
@@ -1271,12 +1470,13 @@ function App() {
       <Navbar />
       <Hero />
       <StatsSection />
-      
+     
       <HazardMap />
       <ClimateAssistant />
       <WhatIsSection />
       <SolutionsSection />
       < ThreeDModelSection/>
+       <Download3DMap />
       <Footer />
     </div>
   )
