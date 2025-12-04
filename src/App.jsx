@@ -329,44 +329,7 @@ const Hero = () => {
     </section>
   );
 };
-const ThreeDModelSection = () => {
-  const [showModel, setShowModel] = useState(false);
-  return (
-    <section
 
-      id="3d-model"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700"
-    >
-       {/* 3D Model Section */}
-  {showModel && (
-    <section style={{ width: "100%", height: "500px", marginTop: "20px" }}>
-      <Scene />
-    </section>
-  )}
-      {/* Optional animated background shapes */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-20 left-10 w-64 h-64 bg-purple-500 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-      </div>
-
-      {/* 3D Model */}
-      <div className="relative z-10 w-full h-full flex items-center justify-center animate-fadeIn">
-        <Scene />
-      </div>
-
-      {/* Wave effect at the bottom */}
-      <div className="absolute bottom-0 left-0 right-0">
-        <svg viewBox="0 0 1440 320" className="w-full h-auto">
-          <path
-            fill="#ffffff"
-            fillOpacity="0.1"
-            d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,144C960,149,1056,139,1152,128C1248,117,1344,107,1392,101.3L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-          ></path>
-        </svg>
-      </div>
-    </section>
-  );
-};
 // ========== NEW: Climate Statistics Section ==========
 const StatsSection = () => {
   return (
@@ -1198,7 +1161,44 @@ const SolutionsSection = () => {
     </section>
   );
 };
+const ThreeDModelSection = () => {
+  const [showModel, setShowModel] = useState(false);
+  return (
+    <section
 
+      id="3d-model"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700"
+    >
+       {/* 3D Model Section */}
+  {showModel && (
+    <section style={{ width: "100%", height: "500px", marginTop: "20px" }}>
+      <Scene />
+    </section>
+  )}
+      {/* Optional animated background shapes */}
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute top-20 left-10 w-64 h-64 bg-purple-500 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+      </div>
+
+      {/* 3D Model */}
+      <div className="relative z-10 w-full h-full flex items-center justify-center animate-fadeIn">
+        <Scene />
+      </div>
+
+      {/* Wave effect at the bottom */}
+      <div className="absolute bottom-0 left-0 right-0">
+        <svg viewBox="0 0 1440 320" className="w-full h-auto">
+          <path
+            fill="#ffffff"
+            fillOpacity="0.1"
+            d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,144C960,149,1056,139,1152,128C1248,117,1344,107,1392,101.3L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+          ></path>
+        </svg>
+      </div>
+    </section>
+  );
+};
 // Footer Component
 const Footer = () => {
   return (
@@ -1271,11 +1271,12 @@ function App() {
       <Navbar />
       <Hero />
       <StatsSection />
-      < ThreeDModelSection/>
+      
       <HazardMap />
       <ClimateAssistant />
       <WhatIsSection />
       <SolutionsSection />
+      < ThreeDModelSection/>
       <Footer />
     </div>
   )
